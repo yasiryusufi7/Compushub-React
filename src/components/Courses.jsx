@@ -1,102 +1,116 @@
+import { useEffect, useState } from "react";
+import { getCourses } from "../services/courseApi";
+
 function Courses() {
-  const sampleCourses = [
-    { id: 1, code: "CS301", title: "Web Information Systems", credits: 3 },
-    { id: 2, code: "CS302", title: "Enterprise Web Applications", credits: 3 }
-  ];
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function fetchCourses() {
+      try {
+        const response = await getCourses();
+
+        if (!Array.isArray(response.data)) {
+          throw new Error("The courses response is not an array.");
+        }
+
+        if (!ignore) {
+          setCourses(response.data);
+        }
+      } catch (requestError) {
+        if (!ignore) {
+          setError("Unable to load courses. Check the backend and try again.");
+          console.error("Error loading courses:", requestError);
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchCourses();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   return (
-    <div>
-      <h2 className="mb-4">Course Management</h2>
-
-      <div className="card shadow-sm mb-4">
-        <div className="card-header">
-          <strong>Add New Course</strong>
+    <section aria-labelledby="courses-heading">
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-4">
+        <div>
+          <p className="text-uppercase small fw-semibold text-primary mb-1">
+            Academic catalog
+          </p>
+          <h1 id="courses-heading" className="h2 mb-1">
+            Course Management
+          </h1>
+          <p className="text-secondary mb-0">
+            Courses loaded from the CompusHub Spring Boot API.
+          </p>
         </div>
-        <div className="card-body">
-          <form>
-            <div className="row g-3">
-              <div className="col-md-3">
-                <label className="form-label">Course Code</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="e.g. CS401"
-                />
-              </div>
-
-              <div className="col-md-5">
-                <label className="form-label">Course Title</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Course title"
-                />
-              </div>
-
-              <div className="col-md-2">
-                <label className="form-label">Credits</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  min="1"
-                />
-              </div>
-
-              <div className="col-md-2 d-flex align-items-end">
-                <button type="button" className="btn btn-primary w-100">
-                  Add Course
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
+        {!loading && !error && (
+          <span className="badge rounded-pill text-bg-primary fs-6 align-self-start align-self-sm-auto">
+            {courses.length} {courses.length === 1 ? "course" : "courses"}
+          </span>
+        )}
       </div>
 
-      <div className="card shadow-sm">
-        <div className="card-header">
-          <strong>Course List</strong>
+      {loading && (
+        <div className="d-flex align-items-center gap-2 py-4" role="status">
+          <span className="spinner-border spinner-border-sm text-primary" aria-hidden="true" />
+          <span>Loading courses...</span>
         </div>
-        <div className="card-body">
-          <div className="table-responsive">
-            <table className="table table-bordered table-hover">
-              <thead className="table-dark">
-                <tr>
-                  <th>ID</th>
-                  <th>Code</th>
-                  <th>Title</th>
-                  <th>Credits</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sampleCourses.map((course) => (
-                  <tr key={course.id}>
-                    <td>{course.id}</td>
-                    <td>{course.code}</td>
-                    <td>{course.title}</td>
-                    <td>{course.credits}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-warning me-2"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-danger"
-                      >
-                        Delete
-                      </button>
-                    </td>
+      )}
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && courses.length === 0 && (
+        <div className="alert alert-info" role="status">
+          No courses available.
+        </div>
+      )}
+
+      {!loading && !error && courses.length > 0 && (
+        <div className="card border-0 shadow-sm">
+          <div className="card-header bg-white border-bottom py-3">
+            <h2 className="h5 mb-0">Course List</h2>
+          </div>
+          <div className="card-body p-0">
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-dark">
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Code</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Credits</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {courses.map((course) => (
+                    <tr key={course.id}>
+                      <td>{course.id}</td>
+                      <td className="fw-semibold">{course.code}</td>
+                      <td>{course.title}</td>
+                      <td>{course.credits}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </section>
   );
 }
 

@@ -1,16 +1,26 @@
-# React + Vite
+# CompusHub React and Spring Boot Integration
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Student:** Yasir Yusufi  
+**Lab:** Display Spring Boot Courses in React
 
-Currently, two official plugins are available:
+This React frontend loads course records from the Spring Boot API and displays the ID, code, title, and credits in a responsive table. The Courses page also shows loading, error, and empty-result states and the total course count.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run the applications
 
-## React Compiler
+Start the backend in its project directory:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```powershell
+.\mvnw.cmd spring-boot:run
+```
 
-## Expanding the ESLint configuration
+The backend runs at `http://localhost:8080`. Its course endpoint is `GET http://localhost:8080/api/v1/courses`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+In a separate terminal, open this React project and run:
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend uses `http://localhost:5173` to match the backend CORS configuration.
+
